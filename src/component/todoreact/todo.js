@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./style.css";
+import { isEditable } from "@testing-library/user-event/dist/utils";
 
 //get the local storage data
 const getLocalData=()=>{
@@ -15,6 +16,9 @@ const Todo = () => {
   const [inputData, setInputDta] = useState("");
   // const [items, setItems] = useState([]);
   const [items, setItems] = useState(getLocalData());
+  //for edit items
+  const[iseditItem, setEditItem]=useState("");
+  const[toggleButton, setToggleButton]=useState(false);
   //console.log(inputData);
   //console.log(items);
 
@@ -23,7 +27,24 @@ const Todo = () => {
   const addItem = () => {
     if (!inputData) {
       alert("please fill the data...");
-    } else {
+    } 
+    //for edit work
+    else if(inputData &&toggleButton ){
+        setItems(
+          items.map( (curElem)=>{
+              if(curElem.id === iseditItem){
+                return{...curElem, name:inputData}
+              }
+             return curElem;
+          })
+        )
+        //for edit set
+        setInputDta("");
+    setEditItem(null);
+    setToggleButton(false);
+    }
+    
+    else {
       const myNewInputData={
         id: new Date().getTime().toString(),
         name: inputData,
@@ -40,6 +61,16 @@ const Todo = () => {
 
     })
     setItems(updateItem);
+  }
+
+  //edit 
+  const editItem =(index)=>{
+    const itemEdit = items.find( (curElem)=>{
+     return curElem.id ===index;
+    })
+    setInputDta(itemEdit.name);
+    setEditItem(index);
+    setToggleButton(true);
   }
 
   //remove all 
@@ -67,10 +98,15 @@ const Todo = () => {
               value={inputData}
               onChange={(even) => setInputDta(even.target.value)}
             />
-
+              {toggleButton ? (<i className="far fa-edit add-btn" onClick ={addItem }></i>):(
+              <i className="fa fa-plus add-btn" onClick ={addItem }></i>)
+              
+              }
             {/* <i className="far fa-edit add-btn"></i> */}
-            <i className="fa fa-plus add-btn" onClick ={addItem }></i>
+            {/* <i className="fa fa-plus add-btn" onClick ={addItem }></i> */}
           </div>
+
+
           {/* show items */}
           <div className="showItems">
             {
@@ -79,7 +115,8 @@ const Todo = () => {
                     <div className="eachItem" key={curElem.id}>
                     <h>{curElem.name}</h>
                     <div className="todo-btn">
-                      <i className="far fa-edit add-btn"></i>
+                      <i className="far fa-edit add-btn"
+                      onClick={()=> editItem(curElem.id)}></i>
                       <i className="far fa-trash-alt add-btn"
                        onClick={()=> deleteItem(curElem.id)}></i>
                     </div>
