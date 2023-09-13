@@ -1,9 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./style.css";
+
+//get the local storage data
+const getLocalData=()=>{
+  const lists = localStorage.getItem("mytodolist");
+  if(lists){
+    return JSON.parse(lists);
+  }else{
+    return [];
+  }
+}
 
 const Todo = () => {
   const [inputData, setInputDta] = useState("");
-  const [items, setItems] = useState([]);
+  // const [items, setItems] = useState([]);
+  const [items, setItems] = useState(getLocalData());
   //console.log(inputData);
   //console.log(items);
 
@@ -35,7 +46,11 @@ const Todo = () => {
   const removeAll=()=>{
     setItems([]);
   }
-
+  //useeffect hook adding local storage
+  useEffect(()=>{
+    localStorage.setItem("mytodolist", JSON.stringify(items));
+  },[items])
+  
   return (
     <>
       <div className="main-div">
